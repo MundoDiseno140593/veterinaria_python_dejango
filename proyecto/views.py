@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from proyecto.models import User  # Asegúrate de usar tu modelo personalizado
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -38,3 +39,7 @@ def custom_login(request):
 
 def home(request):
     return render(request, 'home/index.html', {'usuario': request.user})
+
+@login_required
+def vista_usuario(request):
+    return render(request, 'usuario/index.html', {'usuario': request.user})

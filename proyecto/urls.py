@@ -9,3 +9,6 @@ def custom_login(request):
     
 def home(request):
     return render(request, 'home/index.html')
+
+def vista_usuario(request):
+    return render(request, 'usuario/index.html')

@@ -11,4 +11,5 @@ urlpatterns = [
     path('loguearse', views.custom_login, name='custom_login'),
     
     path('home', views.home, name='home'),
+    path('vista_usuario', views.vista_usuario, name='vista_usuario'),
 ]
