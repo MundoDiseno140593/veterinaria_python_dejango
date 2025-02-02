@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect  # Para renderizar plantillas y redirigir
-from proyecto.models import User  # Importa el modelo de usuario personalizado
+from proyecto.models import User, Tipo  # Importa el modelo de usuario personalizado
 from django.contrib import messages  # Para mostrar mensajes de error o éxito
 from django.contrib.auth import authenticate, login, logout  # Funciones de autenticación
 from django.contrib.auth.decorators import login_required  # Para restringir acceso a vistas protegidas
@@ -43,7 +43,9 @@ def home(request):
 # Vista protegida para la gestión de usuarios
 @login_required(login_url='custom_login')  # Protege la vista para usuarios autenticados
 def vista_usuario(request):
-    return render(request, 'usuario/index.html', {'usuario': request.user})  # Muestra la página del usuario con su información
+    # Filtramos los tipos que no sean 'root' ni 'cliente'
+    tipos = Tipo.objects.exclude(nombre__in=['root', 'cliente'])  # Obtener todos los objetos de la tabla 'Tipo'
+    return render(request, 'usuario/index.html', {'usuario': request.user, 'tipos': tipos})  # Muestra la página del usuario con su información
 
 # Vista personalizada para cerrar sesión
 def custom_logout(request):

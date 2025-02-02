@@ -11,6 +11,9 @@
 
     <title>{% block title%} Dashboard {% endblock %} | Veterinaria</title>
     {%load static%}
+    {% block extra_css %}
+    <!-- Aquí se pueden añadir CSS específicos de la página -->
+    {% endblock %}
     <!-- Google Font: Source Sans Pro -->
     <link
       rel="stylesheet"
@@ -225,5 +228,8 @@
     <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %} "></script>
     <!-- AdminLTE App -->
     <script src="{% static 'dist/js/adminlte.min.js' %} "></script>
+    {% block extra_js %}
+    <!-- Aquí se pueden añadir JS específicos de la página -->
+    {% endblock %}
   </body>
 </html>
