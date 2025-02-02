@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
+from proyecto.models import User  # Asegúrate de usar tu modelo personalizado
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 
@@ -12,28 +12,29 @@ def custom_login(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        
+
         try:
             user = User.objects.get(username=username)
-        except user.DoesNotExist:
+        except User.DoesNotExist:
             user = None
-            messages.error(request, 'usuario no existe')
+            messages.error(request, 'El usuario no existe.')
+        
+        if user:  # Si el usuario fue encontrado
+            # Ahora autenticamos al usuario
+            user_authenticated = authenticate(request, username=username, password=password)
             
-        if user:
-            user = authenticate(request, username=username, password=password)
-            
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    return redirect('home')
+            if user_authenticated is not None:
+                if user_authenticated.is_active:
+                    login(request, user_authenticated)  # Iniciar sesión con el usuario autenticado
+                    return redirect('home')  # Redirige a la página de inicio
                 else:
-                    messages.error(request, 'Tu cuenta de Usuario esta inactivo')
+                    messages.error(request, 'Tu cuenta de usuario está inactiva.')
             else:
-                messages.error(request, 'usuario no existe con esas credenciales.')
+                messages.error(request, 'Usuario o contraseña incorrectos.')
         else:
-            messages.error(request, 'usuario o Contraseña es incorrecta')
-            
+            messages.error(request, 'Usuario o contraseña incorrectos.')
+
     return render(request, 'Login/index.html')
 
 def home(request):
-    return render(request, 'home/index.html')
+    return render(request, 'home/index.html', {'usuario': request.user})
