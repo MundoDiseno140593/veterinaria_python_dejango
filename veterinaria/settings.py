@@ -121,15 +121,23 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
+# Define la URL base para los archivos estáticos del proyecto.
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS=[
-    BASE_DIR / 'static',  # Ruta al directorio estático en el proyecto
+# Lista de directorios donde Django buscará archivos estáticos adicionales.
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',  # Ruta al directorio 'static' dentro del proyecto.
 ]
 
-
-
+# Especifica un modelo de usuario personalizado en lugar del predeterminado de Django.
 AUTH_USER_MODEL = "proyecto.User"
+
+# Define la URL a la que se redirigirá a los usuarios no autenticados cuando intenten acceder a una vista protegida.
+LOGIN_URL = 'custom_login'  # Nombre de la URL de inicio de sesión.
+
+# Define la URL a la que se redirigirá a los usuarios después de cerrar sesión.
+LOGOUT_REDIRECT_URL = 'custom_login'  # Redirige al login después de cerrar sesión.
+
 
 
 # Default primary key field type

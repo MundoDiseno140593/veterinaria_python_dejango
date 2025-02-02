@@ -2,6 +2,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Esta metaetiqueta evita que el navegador almacene en caché la página -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <!-- Indica que no se debe almacenar en caché la página en ningún caso -->
+    <meta http-equiv="Pragma" content="no-cache" />
+    <!-- Expira la página inmediatamente para que siempre se cargue una nueva versión -->
+    <meta http-equiv="Expires" content="0" />
+
     <title>{% block title%} Dashboard {% endblock %} | Veterinaria</title>
     {%load static%}
     <!-- Google Font: Source Sans Pro -->
@@ -109,7 +116,7 @@
               <div class="dropdown-divider"></div>
   
               <!-- Enlace de logout -->
-              <a href="" class="dropdown-item">
+              <a href="{% url 'logout' %}" class="dropdown-item">
                 <i class="fas fa-sign-out-alt mr-2"></i> Logout
               </a>
   
