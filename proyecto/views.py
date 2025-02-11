@@ -10,30 +10,48 @@ def vista_login(request):
 
     # Vista personalizada para el inicio de sesión
 def custom_login(request):
-    if request.method == 'POST':  # Verifica si la solicitud es POST
-        username = request.POST['username']  # Obtiene el nombre de usuario del formulario
-        password = request.POST['password']  # Obtiene la contraseña del formulario
+    # Verifica si la solicitud HTTP es de tipo POST (enviar datos a través de un formulario)
+    if request.method == 'POST':
+        # Obtiene el nombre de usuario enviado desde el formulario
+        username = request.POST['username']
+        # Obtiene la contraseña enviada desde el formulario
+        password = request.POST['password']
 
         try:
-            user = User.objects.get(username=username)  # Busca el usuario en la base de datos
+            # Intenta encontrar al usuario en la base de datos usando el nombre de usuario
+            user = User.objects.get(username=username)
         except User.DoesNotExist:
+            # Si el usuario no existe en la base de datos, asigna None a la variable user
             user = None
-            messages.error(request, 'El usuario no existe.')  # Muestra un mensaje de error
-        
-        if user:  # Si el usuario existe
-            user_authenticated = authenticate(request, username=username, password=password)  # Autentica al usuario
+            # Muestra un mensaje de error indicando que el usuario no existe
+            messages.error(request, 'El usuario no existe.')
+
+        # Si se encuentra un usuario con el nombre de usuario proporcionado
+        if user:
+            # Intenta autenticar al usuario usando el nombre de usuario y la contraseña
+            user_authenticated = authenticate(request, username=username, password=password)
             
-            if user_authenticated is not None:  # Si la autenticación es exitosa
-                if user_authenticated.is_active:  # Verifica si el usuario está activo
-                    login(request, user_authenticated)  # Inicia sesión
-                    return redirect('home')  # Redirige a la página principal
+            # Si la autenticación es exitosa (es decir, se proporciona la contraseña correcta)
+            if user_authenticated is not None:
+                # Verifica si el usuario está activo (no está deshabilitado o bloqueado)
+                if user_authenticated.is_active:
+                    # Si el usuario está activo, se realiza el inicio de sesión
+                    login(request, user_authenticated)
+                    # Redirige al usuario a la página principal (puedes cambiar 'home' por la URL deseada)
+                    return redirect('home')
                 else:
-                    messages.error(request, 'Tu cuenta de usuario está inactiva.')  # Mensaje si la cuenta está inactiva
+                    # Si el usuario está inactivo (deshabilitado o bloqueado), muestra un mensaje de error
+                    messages.error(request, 'Tu cuenta de usuario está inactiva.')
             else:
-                messages.error(request, 'Usuario o contraseña incorrectos.')  # Mensaje si la autenticación falla
+                # Si la autenticación falla (la contraseña es incorrecta), muestra un mensaje de error
+                messages.error(request, 'Usuario o contraseña incorrectos.')
         else:
-            messages.error(request, 'Usuario o contraseña incorrectos.')  # Mensaje si el usuario no existe
-    return render(request, 'Login/index.html')  # Si la autenticación falla, vuelve a la página de login
+            # Si el usuario no existe en la base de datos, muestra un mensaje de error
+            messages.error(request, 'Usuario o contraseña incorrectos.')
+
+    # Si la autenticación falla o la solicitud no es POST, se vuelve a mostrar el formulario de login
+    return render(request, 'Login/index.html')
+
 
 # Vista protegida que solo permite acceso a usuarios autenticados
 @login_required(login_url='custom_login')  # Si no está autenticado, redirige al login
