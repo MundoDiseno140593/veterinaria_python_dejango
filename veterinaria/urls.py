@@ -13,4 +13,5 @@ urlpatterns = [
     
     path('home', views.home, name='home'),
     path('vista_usuario', views.vista_usuario, name='vista_usuario'),
+    path('crear_usuario', views.crear_usuario, name='save_user'),
 ]

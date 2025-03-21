@@ -17,3 +17,6 @@ def vista_usuario(request):
 
 def custom_logout(request):
     request.method = 'POST'
+    
+def crear_usuario(request):
+    request.method == 'POST',
