@@ -20,3 +20,12 @@ def custom_logout(request):
     
 def crear_usuario(request):
     request.method == 'POST',
+    
+def edit_usuario(request, user_id):
+    request.method =='GET'
+    
+def update_usuario(request):
+    request.method == 'POST',
+    
+def delete_usuario(request,user_id):
+    request.method == 'POST',

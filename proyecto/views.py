@@ -5,6 +5,8 @@ from django.contrib.auth import authenticate, login, logout  # Funciones de aute
 from django.contrib.auth.decorators import login_required  # Para restringir acceso a vistas protegidas
 from django.contrib.auth.hashers import make_password  # Para encriptar contraseñas
 from django.contrib.auth import get_user_model  # Para obtener el modelo de usuario personalizado
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
 
 # Vista que renderiza la página de inicio de sesión
 def vista_login(request):
@@ -60,16 +62,6 @@ def custom_login(request):
 def home(request):
     return render(request, 'home/index.html', {'usuario': request.user})  # Muestra la página de inicio con datos del usuario
 
-# Vista protegida para la gestión de usuarios
-@login_required(login_url='custom_login')  # Protege la vista para usuarios autenticados
-def vista_usuario(request):
-    User = get_user_model()  # Obtiene el modelo de usuario
-    # Usamos select_related para obtener el tipo (rol) de los usuarios de manera eficiente
-    usuarios = User.objects.select_related('tipo').all().values('id', 'first_name', 'last_name', 'username', 'email', 'is_active', 'tipo__nombre')  # Obtenemos el nombre del tipo de usuario
-    # Filtramos los tipos que no sean 'root' ni 'cliente'
-    roles = Tipo.objects.exclude(nombre__in=['root', 'cliente'])  # Excluye ciertos role
-    return render(request, 'usuario/index.html', {'usuario': request.user, 'roles': roles, 'usuarios': usuarios,})  # Muestra la página del usuario con su información
-
 # Vista personalizada para cerrar sesión
 def custom_logout(request):
     logout(request)  # Cierra la sesión del usuario
@@ -78,6 +70,19 @@ def custom_logout(request):
     response['Pragma'] = 'no-cache'
     response['Expires'] = '0'
     return response  # Devuelve la respuesta con las cabeceras de caché desactivadas
+
+
+# Vista protegida para la gestión de usuarios
+@login_required(login_url='custom_login')  # Protege la vista para usuarios autenticados
+def vista_usuario(request):
+    User = get_user_model()  # Obtiene el modelo de usuario
+    # Usamos select_related para obtener el tipo (rol) de los usuarios de manera eficiente
+    usuarios = User.objects.select_related('tipo').all().values('id', 'first_name', 'last_name', 'username', 'email', 'is_active', 'tipo__nombre')  # Obtenemos el nombre del tipo de usuario
+    # Filtramos los tipos que no sean 'root' ni 'cliente'
+    roles = Tipo.objects.exclude(nombre__in=['root', 'cliente'])  # Excluye ciertos role
+    rol = Tipo.objects.all()  # Obtiene todos los roles sin excluir ninguno
+    return render(request, 'usuario/index.html', {'usuario': request.user, 'roles': roles, 'usuarios': usuarios, 'rol':rol})  # Muestra la página del usuario con su información
+
 
 # Decorador para requerir que el usuario esté autenticado antes de acceder a esta vista
 @login_required(login_url='custom_login') 
@@ -143,3 +148,41 @@ def crear_usuario(request):
 
     # Renderizamos la plantilla con el contexto
     return render(request, 'usuario/crear.html', context)
+
+
+@login_required(login_url='custom_login') # Requiere que el usuario esté autenticado
+def edit_usuario(request, user_id):
+    usuario = get_object_or_404(User, id=user_id)
+    data = {
+        'id': usuario.id,
+        'nombre': usuario.first_name,
+        'apellido': usuario.last_name,
+        'usuario': usuario.username,
+        'email': usuario.email,
+        'role': usuario.tipo.id if usuario.tipo else None,
+    }
+    return JsonResponse(data)
+
+@login_required(login_url='custom_login') # Requiere que el usuario esté autenticado
+def update_usuario(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        usuario = get_object_or_404(User, id=user_id)
+        usuario.first_name = request.POST.get('nombre')
+        usuario.last_name = request.POST.get('apellido')
+        usuario.username = request.POST.get('usuario')
+        usuario.email = request.POST.get('email')
+        usuario.tipo_id = request.POST.get('role')
+        usuario.save()
+         # Mensaje de éxito y redirección
+        messages.success(request, 'Usuario Actualizado exitosamente.')
+        return redirect(vista_usuario)
+    
+@login_required(login_url='custom_login') # Requiere que el usuario esté autenticado
+def delete_usuario(request, user_id):
+    if request.method == 'POST':
+        usuario = get_object_or_404(User, id=user_id)
+        usuario.is_active = False
+        usuario.save()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)

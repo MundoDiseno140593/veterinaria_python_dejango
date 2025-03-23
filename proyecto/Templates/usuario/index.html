@@ -1,163 +1,198 @@
-{% extends 'base.html' %} 
+{% extends 'base.html' %}
 {% block title %} usuario {% endblock title %}
 
 {% block extra_css %}
-<link
-  href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
-  rel="stylesheet"
-/>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="https://cdn.datatables.net/v/dt/dt-2.1.8/datatables.min.css" rel="stylesheet" />
 {% endblock extra_css %}
 
 {% block content %}
 <!-- Content Header (Page header) -->
 <section class="content-header">
-  {% if messages %}
-  <div class="container mt-3">
-    {% for message in messages %}
-    <div
-      class="alert alert-{{ message.tags }} alert-dismissible fade show"
-      role="alert"
-    >
-      {{ message }}
-      <button
-        type="button"
-        class="close"
-        data-dismiss="alert"
-        aria-label="Close"
-      >
-        <span aria-hidden="true">&times;</span>
-      </button>
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-  </div>
-  {% endif %}
+    {% endif %}
 
-  <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1>
-          <i class="fas fa-users"> Gestion usuario</i>
-          <button
-            class="btn btn-primary"
-            data-toggle="modal"
-            data-target="#crearusuarios"
-          >
-            <i class="fas fa-plus"> Nuevo usuario</i>
-          </button>
-        </h1>
-      </div>
-      <div class="col-sm-6">
-        <ol class="breadcrumb float-sm-right">
-          <li class="breadcrumb-item"><a href="#">Home</a></li>
-          <li class="breadcrumb-item active">Dashboard</li>
-        </ol>
-      </div>
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>
+                    <i class="fas fa-users"> Gestion usuario</i>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#crearusuarios">
+                        <i class="fas fa-plus"> Nuevo usuario</i>
+                    </button>
+                </h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </div>
+        </div>
     </div>
-  </div>
 </section>
 
 <section class="content">
-  <div class="card">
-    <div class="card-header bg bg-primary">
-      <h3 class="card-title">Lista de usuarios</h3>
+    <div class="card">
+        <div class="card-header bg bg-primary">
+            <h3 class="card-title">Lista de usuarios</h3>
+        </div>
+        <div class="card-body">
+            <table id="tablaUsuarios" class="table table-hover" style="width: 100%">
+                <thead class="bg-success text-white">
+                    <tr>
+                        <th style="text-align:center">ID</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Usuario</th>
+                        <th style="text-align:center">Tipo</th>
+                        <th style="text-align:center">Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td style="text-align:center">{{ forloop.counter }}</td>
+                        <td>{{ usuario.first_name }}</td>
+                        <td>{{ usuario.last_name }}</td>
+                        <td>{{ usuario.username }}</td>
+                        <td style="text-align:center">
+                            {% if usuario.tipo__nombre %}
+                            <span class="badge" style="background-color: #ffc107;">{{ usuario.tipo__nombre }}</span>
+                            <!-- Badge amarillo para el rol -->
+                            {% else %}
+                            <span class="badge" style="background-color: #e0e0e0;">Sin rol</span>
+                            <!-- Badge gris si no tiene rol -->
+                            {% endif %}
+                        </td>
+
+                        <td style="text-align:center">
+                            {% if usuario.is_active %}
+                            <span class="badge bg-success">Activo</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="editusuario btn btn-warning btn-sm" data-id="{{ usuario.id }}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="eliminarusuario btn btn-danger btn-sm" data-id="{{ usuario.id }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer">Footer</div>
     </div>
-    <div class="card-body">
-      <table id="tablaUsuarios" class="table table-hover" style="width: 100%">
-        <thead class="bg-success text-white">
-          <tr>
-            <th style="text-align:center">ID</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Usuario</th>
-            <th style="text-align:center">Tipo</th> 
-            <th style="text-align:center">Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for usuario in usuarios %}
-          <tr>
-            <td style="text-align:center">{{ forloop.counter }}</td>
-            <td>{{ usuario.first_name }}</td>
-            <td>{{ usuario.last_name }}</td>
-            <td>{{ usuario.username }}</td>
-            <td style="text-align:center">
-              {% if usuario.tipo__nombre %}
-                  <span class="badge" style="background-color: #ffc107;">{{ usuario.tipo__nombre }}</span>  <!-- Badge amarillo para el rol -->
-              {% else %}
-                  <span class="badge" style="background-color: #e0e0e0;">Sin rol</span>  <!-- Badge gris si no tiene rol -->
-              {% endif %}
-          </td>
-          
-            <td style="text-align:center">
-              {% if usuario.is_active %}
-              <span class="badge bg-success">Activo</span>
-              {% else %}
-              <span class="badge bg-danger">Inactivo</span>
-              {% endif %}
-            </td>
-            <td>
-              <button class="btn btn-warning btn-sm"  data-id="{{ usuario.id }}">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button class="btn btn-danger btn-sm"  data-id="{{ usuario.id }}">
-                <i class="fas fa-trash"></i>
-              </button>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <div class="card-footer">Footer</div>
-  </div>
 </section>
 
 <div class="modal fade" id="crearusuarios">
   <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg bg-success">
-        <h5 class="modal-title">Crear usuarios</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+      <div class="modal-content">
+          <div class="modal-header bg bg-success">
+              <h5 class="modal-title">Crear usuarios</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <form action="{% url 'save_user' %}" method="POST">
+              {% csrf_token %}
+              <div class="modal-body">
+                  <div class="form-group">
+                      <label for="nombre">Nombre:</label>
+                      <input type="text" class="form-control" id="nombre" name="nombre" required placeholder="Ingresa el nombre del usuario" />
+                  </div>
+                  <div class="form-group">
+                      <label for="apellido">Apellido:</label>
+                      <input type="text" class="form-control" id="apellido" name="apellido" required placeholder="Ingresa el apellido del usuario" />
+                  </div>
+                  <div class="form-group">
+                      <label for="username">Usuario:</label>
+                      <input type="text" class="form-control" id="username" name="username" required placeholder="Ingresa el nombre de usuario" />
+                  </div>
+                  <div class="form-group">
+                      <label for="password">Contraseña:</label>
+                      <input type="password" class="form-control" id="password" name="password" required placeholder="Ingresa la contraseña del usuario" />
+                  </div>
+                  <div class="form-group">
+                      <label for="rol">Rol de Usuario:</label>
+                      <select class="form-control select2" id="rol" name="rol" required style="width: 100%">
+                          <option value="" disabled selected>Seleccione un rol</option>
+                          {% for tipo in roles %}
+                          <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
+                          {% endfor %}
+                      </select>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary w-100">Guardar usuario</button>
+              </div>
+          </form>
       </div>
-      <form action="{% url 'save_user' %}" method="POST">
-        {% csrf_token %}
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="nombre">Nombre:</label>
-            <input type="text" class="form-control" id="nombre" name="nombre" required />
-          </div>
-          <div class="form-group">
-            <label for="apellido">Apellido:</label>
-            <input type="text" class="form-control" id="apellido" name="apellido" required />
-          </div>
-          <div class="form-group">
-            <label for="username">Usuario:</label>
-            <input type="text" class="form-control" id="username" name="username" required />
-          </div>
-          <div class="form-group">
-            <label for="password">Contraseña:</label>
-            <input type="password" class="form-control" id="password" name="password" required />
-          </div>
-          <div class="form-group">
-            <label for="rol">Rol de Usuario:</label>
-            <select class="form-control select2" id="rol" name="rol" required style="width: 100%">
-              <option value="" disabled selected>Seleccione un rol</option>
-              {% for tipo in roles %}
-              <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
-              {% endfor %}
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary w-100">Guardar usuario</button>
-        </div>
-      </form>
-    </div>
   </div>
+</div>
+
+
+<!-- Modal para editar usuario -->
+<div class="modal fade" id="editarUsuarioModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header badge badge-success">
+                <h5 class="modal-title">Editar Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm" method="post" action="{% url 'update_user' %}">
+                    {% csrf_token %}
+                    <input type="hidden" id="editUserId" name="user_id">
+                    <div class="form-group">
+                        <label for="editNombre">Nombre</label>
+                        <input type="text" class="form-control" id="editNombre" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editApellido">Apellido</label>
+                        <input type="text" class="form-control" id="editApellido" name="apellido" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editUsuario">Usuario</label>
+                        <input type="text" class="form-control" id="editUsuario" name="usuario" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email</label>
+                        <input type="email" class="form-control" id="editEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editRole">Seleccionar Tipo Role</label>
+                        <select class="form-control select2" id="editRole" name="role" required
+                            style="width: 100%;">
+                            <option value="">Seleccione un rol</option>
+                            {% for rols in rol %}
+                            <option value="{{ rols.id }}">{{ rols.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary w-100">Guardar cambios</button>
+            </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 {% endblock content %}
@@ -169,12 +204,100 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  $(document).ready(function () {
-    $(".select2").select2();
-    $('#tablaUsuarios').DataTable({
-      responsive: true,
-      autoWidth: false
-  });
-  });
+    $(document).ready(function() {
+
+        $('#tablaUsuarios').DataTable({
+            "responsive": true, // Hace la tabla adaptativa
+            "autoWidth": false, // Evita que las columnas cambien de tamaño automáticamente
+            "processing": true // Muestra un loader mientras carga
+        });
+
+        $(".select2").select2();
+        
+        $('#tablaUsuarios').on('click', '.editusuario', function() {
+            const userId = $(this).data('id');
+
+            var url = "{% url 'extraerdatosusuarios' 0 %}".replace('0', userId);
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(data) {
+                    console.log(data)
+                    $('#editUserId').val(data.id);
+                    $('#editNombre').val(data.nombre);
+                    $('#editApellido').val(data.apellido);
+                    $('#editUsuario').val(data.usuario);
+                    $('#editEmail').val(data.email);
+                    $('#editRole').val(data.role).trigger('change'); // Para Select2
+                    $('#editarUsuarioModal').modal('show');
+                },
+                error: function() {
+                    alert('Error al cargar el formulario de edición.');
+                }
+            });
+        });
+
+        $('#tablaUsuarios').on('click', '.eliminarusuario', function() {
+            const userId = $(this).data('id'); // Obtener el ID del usuario
+
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "El usuario será desactivado en lugar de eliminado.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, desactivar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var url = "{% url 'eliminarusuarios' 0 %}".replace('0', userId);
+
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}' // Asegúrate de incluir el token CSRF si es necesario
+                        },
+                        success: function(response) {
+                            // Verifica si la respuesta es exitosa
+                            if (response.success) {
+                                // Encuentra la fila correspondiente al usuario y actualiza su estado
+                                var fila = $('#tablaUsuarios').find(
+                                    `button[data-id='${userId}']`).closest('tr');
+
+                                // Actualiza el badge de estado a "Inactivo"
+                                fila.find('td') // 1. Buscamos todas las celdas <td> dentro de la fila específica (tr)
+                                    .eq(5) // 2. Seleccionamos la celda que está en la sexta columna (índice 5)
+                                    .html('<span class="badge bg-danger">Inactivo</span>'); // 3. Actualizamos el contenido HTML de esa celda con un badge que tiene el texto "Inactivo" y un fondo rojo (bg-danger)
+
+                                // Cambia el estado 'is_active' del botón o fila, si es necesario
+                                Swal.fire(
+                                    'Desactivado!',
+                                    'El usuario ha sido desactivado.',
+                                    'success'
+                                );
+                            } else {
+                                Swal.fire(
+                                    'Error!',
+                                    'Hubo un problema al desactivar el usuario.',
+                                    'error'
+                                );
+                            }
+                        },
+                        error: function() {
+                            Swal.fire(
+                                'Error!',
+                                'Hubo un problema al desactivar el usuario.',
+                                'error'
+                            )
+                        }
+                    });
+                }
+            });
+        });
+
+    });
 </script>
 {% endblock extra_js %}
